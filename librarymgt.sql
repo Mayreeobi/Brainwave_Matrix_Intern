@@ -1,7 +1,7 @@
 -- DATABASE CREATION
 DROP DATABASE IF EXISTS library_mgt;
 
--- Create Database For Auto Care
+-- Create Database For Library Management
 CREATE DATABASE library_mgt
 DEFAULT CHARACTER SET utf8mb4;
 
@@ -59,15 +59,6 @@ CREATE TABLE Borrowings (
     ReturnDate DATE NULL,
     FOREIGN KEY (StudentID) REFERENCES Students(StudentID),
     FOREIGN KEY (BookID) REFERENCES Books(BookID)
-);
-
--- 6. Staff (optional)
-CREATE TABLE Staff (
-    StaffID INT AUTO_INCREMENT PRIMARY KEY,
-    FullName VARCHAR(150),
-    Role VARCHAR(50),
-    Email VARCHAR(100),
-    PasswordHash VARCHAR(255)
 );
 
 -- Constraints for Students Table
@@ -261,133 +252,4 @@ LEFT JOIN
     Books b ON a.AuthorID = b.AuthorID
 GROUP BY 
     a.AuthorID, a.FullName;
-
-
-
--- Staff (optional)
-INSERT INTO Staff (FullName, Role, Email, PasswordHash)
-VALUES 
-('Grace Umeh', 'Librarian', 'grace.umeh@example.com', SHA2('Grace123!', 256)),
-('Tunde Bakare', 'Assistant Librarian', 'tunde.bakare@example.com', SHA2('Tunde456!', 256)),
-('Ngozi Okafor', 'Admin', 'ngozi.okafor@example.com', SHA2('Ngozi789!', 256)),
-('Ibrahim Musa', 'Cataloguer', 'ibrahim.musa@example.com', SHA2('Ibrahim321!', 256)),
-('Fatima Ahmed', 'Archivist', 'fatima.ahmed@example.com', SHA2('Fatima654!', 256)),
-('Daniel Etim', 'Technical Support', 'daniel.etim@example.com', SHA2('Daniel987!', 256)),
-('Chika Nwosu', 'Circulation Desk', 'chika.nwosu@example.com', SHA2('Chika246!', 256));
-
--- View: All Borrowed Books with Student Info
-CREATE VIEW vw_BorrowedBooks AS
-SELECT 
-    br.BorrowID,
-    s.FirstName,
-    s.LastName,
-    b.Title,
-    br.BorrowDate,
-    br.ReturnDate
-FROM Borrowings br
-JOIN Students s ON br.StudentID = s.StudentID
-JOIN Books b ON br.BookID = b.BookID;
-
--- For reusable reports like:
-CREATE VIEW CurrentBorrowedBooks AS
-SELECT s.FirstName, s.LastName, b.Title, br.BorrowDate
-FROM Borrowings br
-JOIN Students s ON br.StudentID = s.StudentID
-JOIN Books b ON br.BookID = b.BookID
-WHERE br.ReturnDate IS NULL;
-
--- Stored Procedures for Library Management
--- Borrow a Book: Checks availability, updates inventory, and inserts a borrow record.
-DELIMITER //
-
-CREATE PROCEDURE BorrowBook (
-    IN p_StudentID INT,
-    IN p_BookID INT,
-    IN p_BorrowDate DATE
-)
-BEGIN
-    DECLARE available INT;
-
-    SELECT CopiesAvailable INTO available
-    FROM Books
-    WHERE BookID = p_BookID;
-
-    IF available > 0 THEN
-        -- Insert borrowing record
-        INSERT INTO Borrowings (StudentID, BookID, BorrowDate)
-        VALUES (p_StudentID, p_BookID, p_BorrowDate);
-
-        -- Decrease available copies
-        UPDATE Books
-        SET CopiesAvailable = CopiesAvailable - 1
-        WHERE BookID = p_BookID;
-    ELSE
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'No copies available for this book.';
-    END IF;
-END //
-
-DELIMITER ;
-
--- Return a Book: Updates the return date and increases the book's available copies
-DELIMITER //
-
-CREATE PROCEDURE ReturnBook (
-    IN p_BorrowID INT,
-    IN p_ReturnDate DATE
-)
-BEGIN
-    DECLARE bookID INT;
-
-    SELECT BookID INTO bookID
-    FROM Borrowings
-    WHERE BorrowID = p_BorrowID;
-
-    -- Update return date
-    UPDATE Borrowings
-    SET ReturnDate = p_ReturnDate
-    WHERE BorrowID = p_BorrowID;
-
-    -- Increase available copies
-    UPDATE Books
-    SET CopiesAvailable = CopiesAvailable + 1
-    WHERE BookID = bookID;
-END //
-
-DELIMITER ;
-
--- Lists of books by genre
-DELIMITER //
-
-CREATE PROCEDURE GetBooksByGenre (
-    IN p_GenreName VARCHAR(100)
-)
-BEGIN
-    SELECT b.Title, a.FullName AS Author, g.GenreName
-    FROM Books b
-    JOIN Authors a ON b.AuthorID = a.AuthorID
-    JOIN Genres g ON b.GenreID = g.GenreID
-    WHERE g.GenreName = p_GenreName;
-END //
-
-DELIMITER ;
-
---  Trigger: Prevent Borrowing When No Copies Available
-DELIMITER $$
-
-CREATE TRIGGER trg_BeforeBorrowing
-BEFORE INSERT ON Borrowings
-FOR EACH ROW
-BEGIN
-    DECLARE copies INT;
-    SELECT CopiesAvailable INTO copies FROM Books WHERE BookID = NEW.BookID;
-    
-    IF copies < 1 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'No copies available for this book.';
-    END IF;
-END$$
-
-DELIMITER ;
-
 
