@@ -1,5 +1,5 @@
 # Library Management System 
-- Click [Here](https://) for the SQL script
+- Click [Here](https://github.com/Mayreeobi/Database-Creation/blob/main/librarymgt.sql) for the SQL script
 
 The Library Management System is designed to streamline and automate the processes involved in managing a library’s operations, including book tracking, student borrowing records, and author/genre categorization. This system ensures efficient book inventory management, real-time tracking of borrowed and returned books, and easy retrieval of student borrowing history. It improves the accuracy of record keeping, supports quick decision-making for acquisitions, and provides an organized structure for maintaining book-related data.
 
@@ -32,7 +32,7 @@ The Library Management System is built on a relational database model. It consis
 
 
 # Hospital Management System
-- Click [Here]() for the SQL script
+- Click [Here](https://github.com/Mayreeobi/Database-Creation/blob/main/HosptialMgt_db.sql) for the SQL script
   
 Welcome to the design for your Hospital Management Database! This document outlines the structure of a relational database system designed to efficiently manage key operations within a hospital environment. From patient records and doctor details to appointments, prescriptions, and payments, this database aims to provide a centralized and organized way to store and retrieve critical information, supporting better administrative processes and patient care.
 
