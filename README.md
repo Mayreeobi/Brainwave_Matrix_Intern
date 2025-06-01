@@ -20,12 +20,11 @@ The Library Management System is built on a relational database model. It consis
  5. 📅 Borrowings: Tracks the borrowing and returning of books.
 
 ### 🧩 Entity Relationships
+   - [Entity Relationship Diagram (ERD)](https://github.com/Mayreeobi/Brainwave_Matrix_Intern/blob/main/Library%20mgt%20EER.png)
    - One-to-Many: One student can borrow multiple books.
    - Many-to-One: Each book is written by one author and belongs to one genre.
    - One-to-Many: One author can write multiple books.
    - One-to-Many: One genre can include multiple books.
-
-
 
 
 
@@ -52,9 +51,11 @@ Here's a breakdown of each table:
 
 
 ### 🧩 Entity Relationships
+   - [Entity Relationship Diagram (ERD)](https://github.com/Mayreeobi/Brainwave_Matrix_Intern/blob/main/HosptialMgt_db.sql)
    - One-to-Many: One department can have many doctors.
    - One-to-Many: One doctor can have many appointments.
    - One-to-Many: One patient can have many appointments and payments.
    - Many-to-Many: Appointments and Medications are linked through Prescriptions.
+
 
 This structure provides a solid foundation for managing the core data of a hospital, allowing for efficient record-keeping and reporting.
